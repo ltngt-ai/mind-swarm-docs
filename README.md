@@ -57,13 +57,13 @@ Production deployment and operations:
 
 1. **Clone the repositories**:
 ```bash
-git clone https://github.com/ltngt-ai/mindswarm-core.git
-git clone https://github.com/ltngt-ai/mindswarm-runtime.git
+git clone https://github.com/ltngt-ai/mind-swarm-core.git
+git clone https://github.com/ltngt-ai/mind-swarm-runtime.git
 ```
 
 2. **Set up the environment**:
 ```bash
-cd mindswarm-core
+cd mind-swarm-core
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -71,12 +71,12 @@ pip install -r requirements.txt
 
 3. **Configure runtime path**:
 ```bash
-export MINDSWARM_RUNTIME_PATH="../mindswarm-runtime"
+export MIND_SWARM_RUNTIME_PATH="../mind-swarm-runtime"
 ```
 
 4. **Start the development server**:
 ```bash
-python -m mindswarm.server.main
+python -m mind-swarm.server.main
 ```
 
 The server will start with hot reload enabled, automatically picking up changes to runtime components.
@@ -89,7 +89,7 @@ The server will start with hot reload enabled, automatically picking up changes 
 ```json
 {
   "type": "set_identity",
-  "email_address": "user@users.local.mindswarm.ltngt.ai"
+  "email_address": "user@users.local.mind-swarm.ltngt.ai"
 }
 ```
 
@@ -98,7 +98,7 @@ The server will start with hot reload enabled, automatically picking up changes 
 {
   "type": "mail",
   "mail": {
-    "to_address": "ui-agent@project.local.mindswarm.ltngt.ai",
+    "to_address": "ui-agent@project.local.mind-swarm.ltngt.ai",
     "subject": "Hello",
     "body": "Create a new project for me"
   }
@@ -154,7 +154,7 @@ The server will start with hot reload enabled, automatically picking up changes 
 
 ## Component Overview
 
-### Core System (`mindswarm-core`)
+### Core System (`mind-swarm-core`)
 - **Server**: FastAPI application with WebSocket support
 - **Agent Manager**: Lifecycle management for agents
 - **Mailbox System**: RFC2822-based message routing
@@ -162,7 +162,7 @@ The server will start with hot reload enabled, automatically picking up changes 
 - **AI Integration**: Support for multiple AI models and providers
 - **Authentication**: JWT-based user authentication and sessions
 
-### Runtime System (`mindswarm-runtime`)
+### Runtime System (`mind-swarm-runtime`)
 - **Agent Types**: YAML definitions for different agent behaviors
 - **Tools**: YAML + Python implementations for agent capabilities
 - **Templates**: Jinja2 templates for agent prompts and responses
@@ -187,8 +187,8 @@ User Interface ◄─── WebSocket ◄─── UI Agent ◄─── Respons
 
 ### Creating a New Agent Type
 
-1. **Define agent behavior** in `mindswarm-runtime/agent_types/my_agent.yaml`
-2. **Create prompt template** in `mindswarm-runtime/templates/static/my_agent.j2`
+1. **Define agent behavior** in `mind-swarm-runtime/agent_types/my_agent.yaml`
+2. **Create prompt template** in `mind-swarm-runtime/templates/static/my_agent.j2`
 3. **Test the agent** - hot reload will pick up changes automatically
 4. **Deploy** - changes are automatically validated and applied
 

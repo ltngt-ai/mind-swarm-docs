@@ -25,8 +25,8 @@ python3.11 -m venv .venv
 source .venv/bin/activate
 
 # Core dependencies
-pip install -r mindswarm-core/requirements.txt
-pip install -r mindswarm-runtime/requirements.txt
+pip install -r mind-swarm-core/requirements.txt
+pip install -r mind-swarm-runtime/requirements.txt
 
 # Development tools
 pip install pytest pytest-asyncio black ruff mypy
@@ -36,9 +36,9 @@ pip install pytest pytest-asyncio black ruff mypy
 
 ```
 workspace/
-├── mindswarm-core/          # Core infrastructure
-├── mindswarm-runtime/       # Runtime components
-├── mindswarm-docs/          # Documentation
+├── mind-swarm-core/          # Core infrastructure
+├── mind-swarm-runtime/       # Runtime components
+├── mind-swarm-docs/          # Documentation
 └── projects/                # User projects
     └── example-project/
         ├── project.json
@@ -49,17 +49,17 @@ workspace/
 
 **Environment Variables**:
 ```bash
-export MINDSWARM_RUNTIME_PATH="./mindswarm-runtime"
-export MINDSWARM_DATA_DIR="./data"
+export MIND_SWARM_RUNTIME_PATH="./mind-swarm-runtime"
+export MIND_SWARM_DATA_DIR="./data"
 export LOG_LEVEL="DEBUG"
-export MINDSWARM_HOST="0.0.0.0"
-export MINDSWARM_PORT="8000"
+export MIND_SWARM_HOST="0.0.0.0"
+export MIND_SWARM_PORT="8000"
 ```
 
 **Server Configuration**:
 ```python
 config = {
-    "runtime_paths": [Path("./mindswarm-runtime")],
+    "runtime_paths": [Path("./mind-swarm-runtime")],
     "data_dir": "./data",
     "cors_origins": ["http://localhost:3000"],
     "hot_reload_enabled": True,
@@ -70,8 +70,8 @@ config = {
 ### Running the Development Server
 
 ```bash
-cd mindswarm-core
-python -m mindswarm.server.main
+cd mind-swarm-core
+python -m mind-swarm.server.main
 ```
 
 The server will start with hot reload enabled, automatically picking up changes to runtime components.
@@ -80,7 +80,7 @@ The server will start with hot reload enabled, automatically picking up changes 
 
 ### Basic Agent Type
 
-Create `mindswarm-runtime/agent_types/my_agent.yaml`:
+Create `mind-swarm-runtime/agent_types/my_agent.yaml`:
 
 ```yaml
 agent_type: my_agent
@@ -124,7 +124,7 @@ metadata:
 
 ### Agent Template
 
-Create `mindswarm-runtime/templates/static/my_agent.j2`:
+Create `mind-swarm-runtime/templates/static/my_agent.j2`:
 
 ```jinja2
 {% include "shared/agent_identity.j2" %}
@@ -173,10 +173,10 @@ Remember: Always stay in character as {{ agent_id }} and use your tools effectiv
 
 ```python
 # Test agent creation
-from mindswarm.services.agents.agent_manager import AgentManager
+from mind-swarm.services.agents.agent_manager import AgentManager
 
 async def test_my_agent():
-    config = {"runtime_paths": [Path("./mindswarm-runtime")]}
+    config = {"runtime_paths": [Path("./mind-swarm-runtime")]}
     manager = AgentManager(config)
     
     session = await manager.create_agent(
@@ -189,10 +189,10 @@ async def test_my_agent():
     assert session.state == AgentState.IDLE
     
     # Test agent can receive mail
-    from mindswarm.core.communication.mailbox import Mail, get_mailbox
+    from mind-swarm.core.communication.mailbox import Mail, get_mailbox
     
     mail = Mail(
-        from_address="test@system.local.mindswarm.ltngt.ai",
+        from_address="test@system.local.mind-swarm.ltngt.ai",
         to_address=session.metadata["email"],
         subject="Test Message",
         body="Hello, agent!"
@@ -264,8 +264,8 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from mindswarm.tools.tool_context import ToolContext
-from mindswarm.tools.tool_result import ToolResult
+from mind-swarm.tools.tool_context import ToolContext
+from mind-swarm.tools.tool_result import ToolResult
 
 
 async def execute_async(
@@ -349,7 +349,7 @@ async def execute_async(
 
 ```python
 import pytest
-from mindswarm.tools.tool_context import ToolContext
+from mind-swarm.tools.tool_context import ToolContext
 from tools.filesystem.read_file import execute_async
 
 
@@ -392,8 +392,8 @@ async def test_read_file():
 **Async Tool with External API**:
 ```python
 import aiohttp
-from mindswarm.tools.tool_context import ToolContext
-from mindswarm.tools.tool_result import ToolResult
+from mind-swarm.tools.tool_context import ToolContext
+from mind-swarm.tools.tool_result import ToolResult
 
 
 async def execute_async(
@@ -521,12 +521,12 @@ You are an enhanced agent with sophisticated capabilities.
 ### Template Testing
 
 ```python
-from mindswarm.services.agents.template_engine import TemplateEngine
+from mind-swarm.services.agents.template_engine import TemplateEngine
 from pathlib import Path
 
 
 def test_template_rendering():
-    template_dirs = [Path("mindswarm-runtime/templates")]
+    template_dirs = [Path("mind-swarm-runtime/templates")]
     engine = TemplateEngine(template_dirs)
     
     context = {
@@ -564,11 +564,11 @@ def test_template_rendering():
 
 ```python
 # Agent A sends mail to Agent B
-from mindswarm.core.communication.mailbox import Mail, get_mailbox
+from mind-swarm.core.communication.mailbox import Mail, get_mailbox
 
 mail = Mail(
-    from_address="agent-a@project.local.mindswarm.ltngt.ai",
-    to_address="agent-b@project.local.mindswarm.ltngt.ai",
+    from_address="agent-a@project.local.mind-swarm.ltngt.ai",
+    to_address="agent-b@project.local.mind-swarm.ltngt.ai",
     subject="Task Assignment",
     body="Please handle task #123: Update documentation",
     headers={
@@ -588,7 +588,7 @@ result = mailbox.send_mail(mail)
 # Send request with correlation ID
 request_mail = Mail(
     from_address=context.agent_email,
-    to_address="service-agent@project.local.mindswarm.ltngt.ai",
+    to_address="service-agent@project.local.mind-swarm.ltngt.ai",
     subject="Data Request",
     body="Please provide user statistics for project",
     headers={
@@ -622,9 +622,9 @@ mailbox.send_mail(response_mail)
 ```python
 # Send to multiple agents
 recipients = [
-    "agent-1@project.local.mindswarm.ltngt.ai",
-    "agent-2@project.local.mindswarm.ltngt.ai",
-    "agent-3@project.local.mindswarm.ltngt.ai"
+    "agent-1@project.local.mind-swarm.ltngt.ai",
+    "agent-2@project.local.mind-swarm.ltngt.ai",
+    "agent-3@project.local.mind-swarm.ltngt.ai"
 ]
 
 for recipient in recipients:
@@ -643,9 +643,9 @@ for recipient in recipients:
 ```python
 # Coordinator sends tasks
 task_assignments = [
-    ("agent-1@project.local.mindswarm.ltngt.ai", "Implement feature A"),
-    ("agent-2@project.local.mindswarm.ltngt.ai", "Write tests for feature A"),
-    ("agent-3@project.local.mindswarm.ltngt.ai", "Update documentation")
+    ("agent-1@project.local.mind-swarm.ltngt.ai", "Implement feature A"),
+    ("agent-2@project.local.mind-swarm.ltngt.ai", "Write tests for feature A"),
+    ("agent-3@project.local.mind-swarm.ltngt.ai", "Update documentation")
 ]
 
 for agent_email, task in task_assignments:
@@ -669,7 +669,7 @@ for agent_email, task in task_assignments:
 ```python
 import pytest
 from unittest.mock import MagicMock, AsyncMock
-from mindswarm.tools.tool_context import ToolContext
+from mind-swarm.tools.tool_context import ToolContext
 
 
 @pytest.fixture
@@ -703,7 +703,7 @@ async def test_tool_execution(mock_context):
 @pytest.mark.asyncio
 async def test_agent_communication():
     # Create test environment
-    config = {"runtime_paths": [Path("./mindswarm-runtime")]}
+    config = {"runtime_paths": [Path("./mind-swarm-runtime")]}
     manager = AgentManager(config)
     
     # Create two agents
@@ -797,7 +797,7 @@ async def execute_async(message: str, context):
 
 ```python
 import logging
-from mindswarm.core.logging import setup_logging, get_logger, get_narrative_logger
+from mind-swarm.core.logging import setup_logging, get_logger, get_narrative_logger
 
 # Configure logging
 setup_logging(level="DEBUG")
@@ -820,7 +820,7 @@ registered = mailbox.list_registered_mailboxes()
 print(f"Registered mailboxes: {registered}")
 
 # Check for unread mail
-email = "agent@project.local.mindswarm.ltngt.ai"
+email = "agent@project.local.mind-swarm.ltngt.ai"
 unread_count = mailbox.get_unread_count(email)
 print(f"Unread messages for {email}: {unread_count}")
 
@@ -833,9 +833,9 @@ print(f"Agent states: {states}")
 **Issue: Tool not loading**
 ```python
 # Check tool validation
-from mindswarm.runtime.loader import RuntimeLoader
+from mind-swarm.runtime.loader import RuntimeLoader
 
-loader = RuntimeLoader([Path("./mindswarm-runtime")])
+loader = RuntimeLoader([Path("./mind-swarm-runtime")])
 validation_results = loader.validate_runtime_data()
 
 for component_key, result in validation_results["validation_results"].items():
@@ -846,10 +846,10 @@ for component_key, result in validation_results["validation_results"].items():
 **Issue: Template rendering errors**
 ```python
 # Test template rendering
-from mindswarm.services.agents.template_engine import TemplateEngine
+from mind-swarm.services.agents.template_engine import TemplateEngine
 
 try:
-    engine = TemplateEngine([Path("./mindswarm-runtime/templates")])
+    engine = TemplateEngine([Path("./mind-swarm-runtime/templates")])
     prompt = engine.render_static_prompt(
         template_name="static/my_agent.j2",
         context={"agent_id": "test", "agent_type": "test"}
@@ -865,7 +865,7 @@ except Exception as e:
 
 ```python
 # Monitor context usage
-from mindswarm.context.context_size_manager import get_context_size_manager
+from mind-swarm.context.context_size_manager import get_context_size_manager
 
 size_manager = get_context_size_manager()
 context_info = size_manager.get_context_size_info(
@@ -904,8 +904,8 @@ def log_memory_usage():
 
 1. **Start Server with Hot Reload**:
 ```bash
-cd mindswarm-core
-MINDSWARM_RUNTIME_PATH="../mindswarm-runtime" python -m mindswarm.server.main
+cd mind-swarm-core
+MIND_SWARM_RUNTIME_PATH="../mind-swarm-runtime" python -m mind-swarm.server.main
 ```
 
 2. **Edit Runtime Components**:
@@ -921,7 +921,7 @@ MINDSWARM_RUNTIME_PATH="../mindswarm-runtime" python -m mindswarm.server.main
 
 **File Organization**:
 ```
-mindswarm-runtime/
+mind-swarm-runtime/
 ├── tools/
 │   ├── category1/
 │   │   ├── tool1.yaml
@@ -952,13 +952,13 @@ mindswarm-runtime/
 **Runtime Component Validator**:
 ```python
 # Validate before committing
-from mindswarm.runtime.validator import ComponentValidator
+from mind-swarm.runtime.validator import ComponentValidator
 from pathlib import Path
 
-validator = ComponentValidator([Path("./mindswarm-runtime")])
+validator = ComponentValidator([Path("./mind-swarm-runtime")])
 
 # Validate a specific tool
-with open("mindswarm-runtime/tools/my_tool.yaml") as f:
+with open("mind-swarm-runtime/tools/my_tool.yaml") as f:
     tool_data = yaml.safe_load(f)
 
 result = validator.validate_component(tool_data, "tool")
@@ -970,7 +970,7 @@ if not result.valid:
 ```python
 def lint_runtime_components():
     """Check all runtime components for common issues."""
-    runtime_path = Path("./mindswarm-runtime")
+    runtime_path = Path("./mind-swarm-runtime")
     
     # Check for orphaned files
     yaml_files = set(runtime_path.glob("tools/**/*.yaml"))
@@ -1070,8 +1070,8 @@ class HTTPToolMixin:
 ```python
 # Production config
 production_config = {
-    "runtime_paths": [Path("/opt/mindswarm/runtime")],
-    "data_dir": "/var/lib/mindswarm",
+    "runtime_paths": [Path("/opt/mind-swarm/runtime")],
+    "data_dir": "/var/lib/mind-swarm",
     "cors_origins": ["https://app.company.com"],
     "hot_reload_enabled": False,  # Disable in production
     "log_level": "INFO",
@@ -1093,13 +1093,13 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # Copy application
-COPY mindswarm-core/ ./mindswarm-core/
-COPY mindswarm-runtime/ ./mindswarm-runtime/
+COPY mind-swarm-core/ ./mind-swarm-core/
+COPY mind-swarm-runtime/ ./mind-swarm-runtime/
 
 # Set environment
-ENV MINDSWARM_RUNTIME_PATH="/app/mindswarm-runtime"
-ENV MINDSWARM_DATA_DIR="/data"
-ENV PYTHONPATH="/app/mindswarm-core/src"
+ENV MIND_SWARM_RUNTIME_PATH="/app/mind-swarm-runtime"
+ENV MIND_SWARM_DATA_DIR="/data"
+ENV PYTHONPATH="/app/mind-swarm-core/src"
 
 # Expose port
 EXPOSE 8000
@@ -1109,7 +1109,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8000/health || exit 1
 
 # Run application
-CMD ["python", "-m", "mindswarm.server.main"]
+CMD ["python", "-m", "mind-swarm.server.main"]
 ```
 
 **Docker Compose**:
@@ -1117,16 +1117,16 @@ CMD ["python", "-m", "mindswarm.server.main"]
 version: '3.8'
 
 services:
-  mindswarm:
+  mind-swarm:
     build: .
     ports:
       - "8000:8000"
     volumes:
       - ./data:/data
-      - ./runtime:/app/mindswarm-runtime:ro
+      - ./runtime:/app/mind-swarm-runtime:ro
     environment:
       - LOG_LEVEL=INFO
-      - MINDSWARM_DATA_DIR=/data
+      - MIND_SWARM_DATA_DIR=/data
     restart: unless-stopped
 
   nginx:
@@ -1138,7 +1138,7 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
     depends_on:
-      - mindswarm
+      - mind-swarm
     restart: unless-stopped
 ```
 
@@ -1146,11 +1146,11 @@ services:
 
 ```nginx
 # nginx.conf
-upstream mindswarm_backend {
-    server mindswarm:8000;
+upstream mind-swarm_backend {
+    server mind-swarm:8000;
     # Add more instances for scaling
-    # server mindswarm2:8000;
-    # server mindswarm3:8000;
+    # server mind-swarm2:8000;
+    # server mind-swarm3:8000;
 }
 
 server {
@@ -1158,7 +1158,7 @@ server {
     server_name api.company.com;
     
     location / {
-        proxy_pass http://mindswarm_backend;
+        proxy_pass http://mind-swarm_backend;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -1171,7 +1171,7 @@ server {
     
     # WebSocket support
     location /ws {
-        proxy_pass http://mindswarm_backend;
+        proxy_pass http://mind-swarm_backend;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";

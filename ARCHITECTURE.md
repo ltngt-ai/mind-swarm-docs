@@ -1,6 +1,6 @@
 # MindSwarm Architecture Documentation
 
-This document provides a comprehensive overview of the MindSwarm agent-first AI system architecture, based on analysis of the `mindswarm-core` and `mindswarm-runtime` implementations.
+This document provides a comprehensive overview of the MindSwarm agent-first AI system architecture, based on analysis of the `mind-swarm-core` and `mind-swarm-runtime` implementations.
 
 ## Table of Contents
 
@@ -60,12 +60,12 @@ MindSwarm is an agent-first AI execution engine that enables dynamic, mail-based
 
 ## Architecture Components
 
-### Core Infrastructure (`mindswarm-core`)
+### Core Infrastructure (`mind-swarm-core`)
 
 The core system provides the foundational infrastructure:
 
 ```
-mindswarm-core/src/mindswarm/
+mind-swarm-core/src/mind-swarm/
 ├── __init__.py              # Package initialization
 ├── py.typed                 # Type information marker
 ├── core/                    # Core infrastructure
@@ -93,12 +93,12 @@ mindswarm-core/src/mindswarm/
 └── utils/                   # Core utilities and helpers
 ```
 
-### Runtime Components (`mindswarm-runtime`)
+### Runtime Components (`mind-swarm-runtime`)
 
 The runtime system provides dynamically loadable components:
 
 ```
-mindswarm-runtime/
+mind-swarm-runtime/
 ├── agent_types/             # Agent type definitions (10 types)
 │   ├── schema.yaml          # Agent type validation schema
 │   ├── ui.yaml              # UI agent configuration
@@ -229,12 +229,12 @@ The mailbox system provides the core communication infrastructure:
 
 ```python
 # Email address format
-agent_id@project_id.local.mindswarm.ltngt.ai
+agent_id@project_id.local.mind-swarm.ltngt.ai
 
 # Example addresses
-ui-agent@project-123.local.mindswarm.ltngt.ai
-task-manager-5@project-123.local.mindswarm.ltngt.ai
-user@users.local.mindswarm.ltngt.ai
+ui-agent@project-123.local.mind-swarm.ltngt.ai
+task-manager-5@project-123.local.mind-swarm.ltngt.ai
+user@users.local.mind-swarm.ltngt.ai
 ```
 
 ### Mail Message Structure
@@ -243,13 +243,13 @@ Messages follow RFC2822 format with MindSwarm extensions:
 
 ```python
 Mail(
-    from_address="sender@project.local.mindswarm.ltngt.ai",
-    to_address="recipient@project.local.mindswarm.ltngt.ai", 
+    from_address="sender@project.local.mind-swarm.ltngt.ai",
+    to_address="recipient@project.local.mind-swarm.ltngt.ai", 
     subject="Task Assignment",
     body="Please analyze the codebase for potential improvements.",
     priority="normal",
     headers={
-        "Message-ID": "<unique-id@mindswarm.ltngt.ai>",
+        "Message-ID": "<unique-id@mind-swarm.ltngt.ai>",
         "Date": "Mon, 30 Jun 2025 14:30:00 +0000",
         "X-MindSwarm-Project": "project-123",
         "X-MindSwarm-Agent-Type": "task_manager"
@@ -509,8 +509,8 @@ async def execute_async(context: Dict[str, Any], **kwargs) -> Dict[str, Any]:
 #### Tool Registry System
 
 ```python
-# Core tool registry (mindswarm-core)
-from mindswarm.tools import get_tool_registry
+# Core tool registry (mind-swarm-core)
+from mind-swarm.tools import get_tool_registry
 
 registry = get_tool_registry()
 
@@ -622,7 +622,7 @@ The knowledge system provides structured, hyperlinked knowledge that agents can 
 knowledge/
 ├── schema.yaml          # Knowledge validation schema
 ├── core/               # Trusted knowledge packs
-│   ├── mindswarm-basics.yaml
+│   ├── mind-swarm-basics.yaml
 │   ├── agent-types.yaml
 │   └── git-workflows.yaml
 ├── community/          # Community contributions
@@ -718,17 +718,17 @@ User/Client → WebSocket → Server → AgentManager → Agent
 ```yaml
 # Docker deployment
 services:
-  mindswarm-core:
-    image: mindswarm/core:latest
+  mind-swarm-core:
+    image: mind-swarm/core:latest
     volumes:
-      - ./mindswarm-runtime:/runtime
+      - ./mind-swarm-runtime:/runtime
     environment:
-      - MINDSWARM_RUNTIME_PATH=/runtime
+      - MIND_SWARM_RUNTIME_PATH=/runtime
   
-  mindswarm-ui:
-    image: mindswarm/ui:latest
+  mind-swarm-ui:
+    image: mind-swarm/ui:latest
     depends_on:
-      - mindswarm-core
+      - mind-swarm-core
 ```
 
 ### Scaling Considerations

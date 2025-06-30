@@ -400,7 +400,7 @@ Services provide core functionality and are registered in the service registry.
 The service registry provides dependency injection:
 
 ```python
-from mindswarm.services.service_registry import get_service_registry
+from mind-swarm.services.service_registry import get_service_registry
 
 registry = get_service_registry()
 registry.register(ProjectService, project_service_instance)

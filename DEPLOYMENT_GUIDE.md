@@ -63,7 +63,7 @@ This guide covers production deployment, monitoring, and operational aspects of 
 
 **Directory Structure**:
 ```
-/opt/mindswarm/
+/opt/mind-swarm/
 ├── docker-compose.yml
 ├── .env
 ├── data/
@@ -90,16 +90,16 @@ This guide covers production deployment, monitoring, and operational aspects of 
 version: '3.8'
 
 services:
-  mindswarm-core:
-    image: mindswarm/core:latest
-    container_name: mindswarm-core
+  mind-swarm-core:
+    image: mind-swarm/core:latest
+    container_name: mind-swarm-core
     restart: unless-stopped
     environment:
-      - MINDSWARM_RUNTIME_PATH=/runtime
-      - MINDSWARM_DATA_DIR=/data
+      - MIND_SWARM_RUNTIME_PATH=/runtime
+      - MIND_SWARM_DATA_DIR=/data
       - LOG_LEVEL=INFO
       - REDIS_URL=redis://redis:6379/0
-      - DATABASE_URL=postgresql://mindswarm:${DB_PASSWORD}@postgres:5432/mindswarm
+      - DATABASE_URL=postgresql://mind-swarm:${DB_PASSWORD}@postgres:5432/mind-swarm
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - JWT_SECRET=${JWT_SECRET}
     volumes:
@@ -107,7 +107,7 @@ services:
       - ./runtime:/runtime:ro
       - ./config/secrets:/secrets:ro
     networks:
-      - mindswarm-network
+      - mind-swarm-network
     depends_on:
       - redis
       - postgres
@@ -120,7 +120,7 @@ services:
 
   nginx:
     image: nginx:alpine
-    container_name: mindswarm-nginx
+    container_name: mind-swarm-nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -130,37 +130,37 @@ services:
       - ./config/ssl:/etc/nginx/ssl:ro
       - ./logs/nginx:/var/log/nginx
     networks:
-      - mindswarm-network
+      - mind-swarm-network
     depends_on:
-      - mindswarm-core
+      - mind-swarm-core
 
   redis:
     image: redis:7-alpine
-    container_name: mindswarm-redis
+    container_name: mind-swarm-redis
     restart: unless-stopped
     command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
     volumes:
       - redis-data:/data
     networks:
-      - mindswarm-network
+      - mind-swarm-network
 
   postgres:
     image: postgres:15-alpine
-    container_name: mindswarm-postgres
+    container_name: mind-swarm-postgres
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=mindswarm
-      - POSTGRES_USER=mindswarm
+      - POSTGRES_DB=mind-swarm
+      - POSTGRES_USER=mind-swarm
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./backups:/backups
     networks:
-      - mindswarm-network
+      - mind-swarm-network
 
   prometheus:
     image: prom/prometheus:latest
-    container_name: mindswarm-prometheus
+    container_name: mind-swarm-prometheus
     restart: unless-stopped
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -173,11 +173,11 @@ services:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
     networks:
-      - mindswarm-network
+      - mind-swarm-network
 
   grafana:
     image: grafana/grafana:latest
-    container_name: mindswarm-grafana
+    container_name: mind-swarm-grafana
     restart: unless-stopped
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
@@ -185,10 +185,10 @@ services:
       - grafana-data:/var/lib/grafana
       - ./config/grafana:/etc/grafana/provisioning:ro
     networks:
-      - mindswarm-network
+      - mind-swarm-network
 
 networks:
-  mindswarm-network:
+  mind-swarm-network:
     driver: bridge
 
 volumes:
@@ -209,8 +209,8 @@ GRAFANA_PASSWORD=grafana-admin-password
 OPENROUTER_API_KEY=your-openrouter-api-key
 
 # Application Settings
-MINDSWARM_HOST=0.0.0.0
-MINDSWARM_PORT=8000
+MIND_SWARM_HOST=0.0.0.0
+MIND_SWARM_PORT=8000
 LOG_LEVEL=INFO
 
 # Scaling
@@ -225,18 +225,18 @@ MAX_CONCURRENT_REQUESTS=100
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: mindswarm
+  name: mind-swarm
 
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mindswarm-config
-  namespace: mindswarm
+  name: mind-swarm-config
+  namespace: mind-swarm
 data:
   LOG_LEVEL: "INFO"
-  MINDSWARM_HOST: "0.0.0.0"
-  MINDSWARM_PORT: "8000"
+  MIND_SWARM_HOST: "0.0.0.0"
+  MIND_SWARM_PORT: "8000"
   MAX_AGENTS_PER_PROJECT: "50"
 ```
 
@@ -245,8 +245,8 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mindswarm-core
-  namespace: mindswarm
+  name: mind-swarm-core
+  namespace: mind-swarm
 spec:
   replicas: 3
   strategy:
@@ -256,27 +256,27 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: mindswarm-core
+      app: mind-swarm-core
   template:
     metadata:
       labels:
-        app: mindswarm-core
+        app: mind-swarm-core
     spec:
       containers:
-      - name: mindswarm-core
-        image: mindswarm/core:latest
+      - name: mind-swarm-core
+        image: mind-swarm/core:latest
         ports:
         - containerPort: 8000
         env:
-        - name: MINDSWARM_RUNTIME_PATH
+        - name: MIND_SWARM_RUNTIME_PATH
           value: "/runtime"
-        - name: MINDSWARM_DATA_DIR
+        - name: MIND_SWARM_DATA_DIR
           value: "/data"
         envFrom:
         - configMapRef:
-            name: mindswarm-config
+            name: mind-swarm-config
         - secretRef:
-            name: mindswarm-secrets
+            name: mind-swarm-secrets
         volumeMounts:
         - name: runtime-volume
           mountPath: /runtime
@@ -305,20 +305,20 @@ spec:
       volumes:
       - name: runtime-volume
         configMap:
-          name: mindswarm-runtime
+          name: mind-swarm-runtime
       - name: data-volume
         persistentVolumeClaim:
-          claimName: mindswarm-data-pvc
+          claimName: mind-swarm-data-pvc
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mindswarm-core-service
-  namespace: mindswarm
+  name: mind-swarm-core-service
+  namespace: mind-swarm
 spec:
   selector:
-    app: mindswarm-core
+    app: mind-swarm-core
   ports:
   - protocol: TCP
     port: 8000
@@ -396,8 +396,8 @@ performance:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: mindswarm-secrets
-  namespace: mindswarm
+  name: mind-swarm-secrets
+  namespace: mind-swarm
 type: Opaque
 stringData:
   JWT_SECRET: "your-jwt-secret"
@@ -426,7 +426,7 @@ class VaultConfig:
     
     def load_secrets(self):
         """Load all required secrets."""
-        secrets = self.get_secret('mindswarm/production')
+        secrets = self.get_secret('mind-swarm/production')
         
         os.environ.update({
             'JWT_SECRET': secrets['jwt_secret'],
@@ -492,12 +492,12 @@ global:
   evaluation_interval: 15s
 
 rule_files:
-  - "mindswarm_rules.yml"
+  - "mind-swarm_rules.yml"
 
 scrape_configs:
-  - job_name: 'mindswarm-core'
+  - job_name: 'mind-swarm-core'
     static_configs:
-      - targets: ['mindswarm-core:8000']
+      - targets: ['mind-swarm-core:8000']
     metrics_path: '/metrics'
     scrape_interval: 10s
 
@@ -519,20 +519,20 @@ from prometheus_client import Counter, Histogram, Gauge, start_http_server
 import time
 
 # Agent metrics
-agent_created_total = Counter('mindswarm_agents_created_total', 'Total agents created', ['project_id', 'agent_type'])
-agent_active_gauge = Gauge('mindswarm_agents_active', 'Currently active agents', ['project_id'])
-agent_processing_time = Histogram('mindswarm_agent_processing_seconds', 'Agent processing time', ['agent_type'])
+agent_created_total = Counter('mind-swarm_agents_created_total', 'Total agents created', ['project_id', 'agent_type'])
+agent_active_gauge = Gauge('mind-swarm_agents_active', 'Currently active agents', ['project_id'])
+agent_processing_time = Histogram('mind-swarm_agent_processing_seconds', 'Agent processing time', ['agent_type'])
 
 # Mail metrics
-mail_sent_total = Counter('mindswarm_mail_sent_total', 'Total mail sent', ['from_type', 'to_type'])
-mail_delivery_time = Histogram('mindswarm_mail_delivery_seconds', 'Mail delivery time')
+mail_sent_total = Counter('mind-swarm_mail_sent_total', 'Total mail sent', ['from_type', 'to_type'])
+mail_delivery_time = Histogram('mind-swarm_mail_delivery_seconds', 'Mail delivery time')
 
 # Tool metrics
-tool_execution_total = Counter('mindswarm_tool_executions_total', 'Tool executions', ['tool_name', 'status'])
-tool_execution_time = Histogram('mindswarm_tool_execution_seconds', 'Tool execution time', ['tool_name'])
+tool_execution_total = Counter('mind-swarm_tool_executions_total', 'Tool executions', ['tool_name', 'status'])
+tool_execution_time = Histogram('mind-swarm_tool_execution_seconds', 'Tool execution time', ['tool_name'])
 
 # Hot reload metrics
-hot_reload_total = Counter('mindswarm_hot_reloads_total', 'Hot reloads', ['component_type', 'status'])
+hot_reload_total = Counter('mind-swarm_hot_reloads_total', 'Hot reloads', ['component_type', 'status'])
 
 class MetricsCollector:
     @staticmethod
@@ -563,12 +563,12 @@ def start_metrics_server(port: int = 9090):
 
 **Prometheus Rules**:
 ```yaml
-# config/mindswarm_rules.yml
+# config/mind-swarm_rules.yml
 groups:
-  - name: mindswarm.rules
+  - name: mind-swarm.rules
     rules:
       - alert: MindSwarmHighAgentFailureRate
-        expr: rate(mindswarm_agents_errors_total[5m]) > 0.1
+        expr: rate(mind-swarm_agents_errors_total[5m]) > 0.1
         for: 2m
         labels:
           severity: warning
@@ -577,7 +577,7 @@ groups:
           description: "Agent failure rate is {{ $value }} per second"
 
       - alert: MindSwarmHighMemoryUsage
-        expr: (mindswarm_memory_usage_bytes / mindswarm_memory_limit_bytes) > 0.9
+        expr: (mind-swarm_memory_usage_bytes / mind-swarm_memory_limit_bytes) > 0.9
         for: 5m
         labels:
           severity: critical
@@ -586,7 +586,7 @@ groups:
           description: "Memory usage is {{ $value | humanizePercentage }}"
 
       - alert: MindSwarmMailDeliveryLatency
-        expr: histogram_quantile(0.95, rate(mindswarm_mail_delivery_seconds_bucket[5m])) > 5
+        expr: histogram_quantile(0.95, rate(mind-swarm_mail_delivery_seconds_bucket[5m])) > 5
         for: 3m
         labels:
           severity: warning
@@ -595,7 +595,7 @@ groups:
           description: "95th percentile latency is {{ $value }}s"
 
       - alert: MindSwarmServiceDown
-        expr: up{job="mindswarm-core"} == 0
+        expr: up{job="mind-swarm-core"} == 0
         for: 1m
         labels:
           severity: critical
@@ -655,7 +655,7 @@ LOGGING_CONFIG = {
         },
         'file': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/data/logs/mindswarm.log',
+            'filename': '/data/logs/mind-swarm.log',
             'maxBytes': 10485760,  # 10MB
             'backupCount': 5,
             'formatter': 'structured',
@@ -663,7 +663,7 @@ LOGGING_CONFIG = {
         },
         'error_file': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/data/logs/mindswarm_errors.log',
+            'filename': '/data/logs/mind-swarm_errors.log',
             'maxBytes': 10485760,  # 10MB
             'backupCount': 10,
             'formatter': 'structured',
@@ -671,7 +671,7 @@ LOGGING_CONFIG = {
         }
     },
     'loggers': {
-        'mindswarm': {
+        'mind-swarm': {
             'handlers': ['console', 'file', 'error_file'],
             'level': 'INFO',
             'propagate': False
@@ -766,11 +766,11 @@ class HealthChecker:
         start_time = time.time()
         try:
             # Test mail sending
-            from mindswarm.core.communication.mailbox import Mail
+            from mind-swarm.core.communication.mailbox import Mail
             
             test_mail = Mail(
-                from_address="health@system.local.mindswarm.ltngt.ai",
-                to_address="health@system.local.mindswarm.ltngt.ai",
+                from_address="health@system.local.mind-swarm.ltngt.ai",
+                to_address="health@system.local.mind-swarm.ltngt.ai",
                 subject="Health Check",
                 body="System health check"
             )
@@ -880,7 +880,7 @@ server {
     
     location / {
         limit_req zone=api burst=20 nodelay;
-        proxy_pass http://mindswarm-core:8000;
+        proxy_pass http://mind-swarm-core:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -889,7 +889,7 @@ server {
     
     location /ws {
         limit_req zone=ws burst=10 nodelay;
-        proxy_pass http://mindswarm-core:8000;
+        proxy_pass http://mind-swarm-core:8000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -963,7 +963,7 @@ class EmailAddress(BaseModel):
     @validator('email')
     def validate_email_format(cls, v):
         # MindSwarm email format validation
-        pattern = r'^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+\.local\.mindswarm\.ltngt\.ai$'
+        pattern = r'^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+\.local\.mind-swarm\.ltngt\.ai$'
         if not re.match(pattern, v):
             raise ValueError('Invalid MindSwarm email format')
         return v
@@ -992,13 +992,13 @@ class MailMessage(BaseModel):
 **PostgreSQL Hardening**:
 ```sql
 -- Create restricted database user
-CREATE USER mindswarm_app WITH PASSWORD 'secure_password';
+CREATE USER mind-swarm_app WITH PASSWORD 'secure_password';
 
 -- Grant minimal required permissions
-GRANT CONNECT ON DATABASE mindswarm TO mindswarm_app;
-GRANT USAGE ON SCHEMA public TO mindswarm_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO mindswarm_app;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO mindswarm_app;
+GRANT CONNECT ON DATABASE mind-swarm TO mind-swarm_app;
+GRANT USAGE ON SCHEMA public TO mind-swarm_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO mind-swarm_app;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO mind-swarm_app;
 
 -- Enable SSL
 ALTER SYSTEM SET ssl = on;
@@ -1012,7 +1012,7 @@ ALTER SYSTEM SET log_statement = 'mod';
 
 -- Connection limits
 ALTER SYSTEM SET max_connections = 100;
-ALTER USER mindswarm_app CONNECTION LIMIT 20;
+ALTER USER mind-swarm_app CONNECTION LIMIT 20;
 ```
 
 ## Backup & Recovery
@@ -1026,7 +1026,7 @@ ALTER USER mindswarm_app CONNECTION LIMIT 20;
 
 set -e
 
-BACKUP_DIR="/opt/mindswarm/backups"
+BACKUP_DIR="/opt/mind-swarm/backups"
 DATE=$(date +%Y%m%d_%H%M%S)
 RETENTION_DAYS=30
 
@@ -1037,25 +1037,25 @@ echo "Starting backup at $(date)"
 
 # Database backup
 echo "Backing up PostgreSQL database..."
-docker exec mindswarm-postgres pg_dump -U mindswarm mindswarm | gzip > "$BACKUP_DIR/$DATE/database.sql.gz"
+docker exec mind-swarm-postgres pg_dump -U mind-swarm mind-swarm | gzip > "$BACKUP_DIR/$DATE/database.sql.gz"
 
 # Redis backup
 echo "Backing up Redis data..."
-docker exec mindswarm-redis redis-cli BGSAVE
+docker exec mind-swarm-redis redis-cli BGSAVE
 sleep 5
-docker cp mindswarm-redis:/data/dump.rdb "$BACKUP_DIR/$DATE/redis.rdb"
+docker cp mind-swarm-redis:/data/dump.rdb "$BACKUP_DIR/$DATE/redis.rdb"
 
 # Application data backup
 echo "Backing up application data..."
-tar -czf "$BACKUP_DIR/$DATE/app_data.tar.gz" -C /opt/mindswarm/data .
+tar -czf "$BACKUP_DIR/$DATE/app_data.tar.gz" -C /opt/mind-swarm/data .
 
 # Runtime components backup
 echo "Backing up runtime components..."
-tar -czf "$BACKUP_DIR/$DATE/runtime.tar.gz" -C /opt/mindswarm/runtime .
+tar -czf "$BACKUP_DIR/$DATE/runtime.tar.gz" -C /opt/mind-swarm/runtime .
 
 # Configuration backup
 echo "Backing up configuration..."
-tar -czf "$BACKUP_DIR/$DATE/config.tar.gz" -C /opt/mindswarm/config .
+tar -czf "$BACKUP_DIR/$DATE/config.tar.gz" -C /opt/mind-swarm/config .
 
 # Cleanup old backups
 echo "Cleaning up old backups..."
@@ -1070,7 +1070,7 @@ echo "Backup size: $BACKUP_SIZE"
 # Upload to cloud storage (optional)
 if [ "$CLOUD_BACKUP_ENABLED" = "true" ]; then
     echo "Uploading to cloud storage..."
-    aws s3 sync "$BACKUP_DIR/$DATE" "s3://$BACKUP_BUCKET/mindswarm/$DATE/"
+    aws s3 sync "$BACKUP_DIR/$DATE" "s3://$BACKUP_BUCKET/mind-swarm/$DATE/"
 fi
 ```
 
@@ -1082,7 +1082,7 @@ fi
 # scripts/restore_database.sh
 
 BACKUP_DATE=$1
-BACKUP_DIR="/opt/mindswarm/backups"
+BACKUP_DIR="/opt/mind-swarm/backups"
 
 if [ -z "$BACKUP_DATE" ]; then
     echo "Usage: $0 <backup_date>"
@@ -1094,17 +1094,17 @@ fi
 echo "Restoring database from backup $BACKUP_DATE"
 
 # Stop application
-docker-compose stop mindswarm-core
+docker-compose stop mind-swarm-core
 
 # Drop and recreate database
-docker exec mindswarm-postgres psql -U postgres -c "DROP DATABASE IF EXISTS mindswarm;"
-docker exec mindswarm-postgres psql -U postgres -c "CREATE DATABASE mindswarm OWNER mindswarm;"
+docker exec mind-swarm-postgres psql -U postgres -c "DROP DATABASE IF EXISTS mind-swarm;"
+docker exec mind-swarm-postgres psql -U postgres -c "CREATE DATABASE mind-swarm OWNER mind-swarm;"
 
 # Restore database
-gunzip -c "$BACKUP_DIR/$BACKUP_DATE/database.sql.gz" | docker exec -i mindswarm-postgres psql -U mindswarm mindswarm
+gunzip -c "$BACKUP_DIR/$BACKUP_DATE/database.sql.gz" | docker exec -i mind-swarm-postgres psql -U mind-swarm mind-swarm
 
 # Restart application
-docker-compose start mindswarm-core
+docker-compose start mind-swarm-core
 
 echo "Database restore completed"
 ```
@@ -1127,11 +1127,11 @@ fi
 BACKUP_DATE=$1
 if [ -z "$BACKUP_DATE" ]; then
     echo "Available backups:"
-    ls -1 /opt/mindswarm/backups
+    ls -1 /opt/mind-swarm/backups
     read -p "Enter backup date: " BACKUP_DATE
 fi
 
-BACKUP_PATH="/opt/mindswarm/backups/$BACKUP_DATE"
+BACKUP_PATH="/opt/mind-swarm/backups/$BACKUP_DATE"
 
 if [ ! -d "$BACKUP_PATH" ]; then
     echo "Backup not found: $BACKUP_PATH"
@@ -1145,16 +1145,16 @@ docker-compose down
 
 # Restore configuration
 echo "Restoring configuration..."
-tar -xzf "$BACKUP_PATH/config.tar.gz" -C /opt/mindswarm/config
+tar -xzf "$BACKUP_PATH/config.tar.gz" -C /opt/mind-swarm/config
 
 # Restore runtime components
 echo "Restoring runtime components..."
-tar -xzf "$BACKUP_PATH/runtime.tar.gz" -C /opt/mindswarm/runtime
+tar -xzf "$BACKUP_PATH/runtime.tar.gz" -C /opt/mind-swarm/runtime
 
 # Restore application data
 echo "Restoring application data..."
-rm -rf /opt/mindswarm/data/*
-tar -xzf "$BACKUP_PATH/app_data.tar.gz" -C /opt/mindswarm/data
+rm -rf /opt/mind-swarm/data/*
+tar -xzf "$BACKUP_PATH/app_data.tar.gz" -C /opt/mind-swarm/data
 
 # Start database
 docker-compose up -d postgres redis
@@ -1162,14 +1162,14 @@ sleep 10
 
 # Restore database
 echo "Restoring database..."
-docker exec mindswarm-postgres psql -U postgres -c "DROP DATABASE IF EXISTS mindswarm;"
-docker exec mindswarm-postgres psql -U postgres -c "CREATE DATABASE mindswarm OWNER mindswarm;"
-gunzip -c "$BACKUP_PATH/database.sql.gz" | docker exec -i mindswarm-postgres psql -U mindswarm mindswarm
+docker exec mind-swarm-postgres psql -U postgres -c "DROP DATABASE IF EXISTS mind-swarm;"
+docker exec mind-swarm-postgres psql -U postgres -c "CREATE DATABASE mind-swarm OWNER mind-swarm;"
+gunzip -c "$BACKUP_PATH/database.sql.gz" | docker exec -i mind-swarm-postgres psql -U mind-swarm mind-swarm
 
 # Restore Redis
 echo "Restoring Redis..."
-docker cp "$BACKUP_PATH/redis.rdb" mindswarm-redis:/data/dump.rdb
-docker restart mindswarm-redis
+docker cp "$BACKUP_PATH/redis.rdb" mind-swarm-redis:/data/dump.rdb
+docker restart mind-swarm-redis
 
 # Start all services
 docker-compose up -d
@@ -1190,8 +1190,8 @@ curl -f http://localhost:8000/health && echo "System is healthy" || echo "System
 version: '3.8'
 
 services:
-  mindswarm-core:
-    image: mindswarm/core:latest
+  mind-swarm-core:
+    image: mind-swarm/core:latest
     deploy:
       replicas: 3
       update_config:
@@ -1200,9 +1200,9 @@ services:
       restart_policy:
         condition: on-failure
     environment:
-      - MINDSWARM_INSTANCE_ID=${HOSTNAME}
+      - MIND_SWARM_INSTANCE_ID=${HOSTNAME}
     networks:
-      - mindswarm-network
+      - mind-swarm-network
 
   nginx:
     image: nginx:alpine
@@ -1214,10 +1214,10 @@ services:
     deploy:
       replicas: 2
     networks:
-      - mindswarm-network
+      - mind-swarm-network
 
 networks:
-  mindswarm-network:
+  mind-swarm-network:
     external: true
 ```
 
@@ -1231,8 +1231,8 @@ from typing import Dict, Optional
 class DistributedSessionManager:
     def __init__(self, redis_url: str):
         self.redis = redis.from_url(redis_url)
-        self.session_prefix = "mindswarm:session:"
-        self.agent_prefix = "mindswarm:agent:"
+        self.session_prefix = "mind-swarm:session:"
+        self.agent_prefix = "mind-swarm:agent:"
     
     def create_session(self, session_id: str, session_data: Dict) -> None:
         """Create session in Redis."""
@@ -1262,7 +1262,7 @@ class DistributedSessionManager:
 ```yaml
 # Resource limits for different environments
 services:
-  mindswarm-core:
+  mind-swarm-core:
     deploy:
       resources:
         limits:
@@ -1272,9 +1272,9 @@ services:
           cpus: '2.0'
           memory: 4G
     environment:
-      - MINDSWARM_MAX_WORKERS=4
-      - MINDSWARM_WORKER_CONNECTIONS=1000
-      - MINDSWARM_MAX_AGENTS_PER_INSTANCE=100
+      - MIND_SWARM_MAX_WORKERS=4
+      - MIND_SWARM_WORKER_CONNECTIONS=1000
+      - MIND_SWARM_MAX_AGENTS_PER_INSTANCE=100
 ```
 
 ### Database Scaling
